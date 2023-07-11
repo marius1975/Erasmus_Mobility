@@ -14,6 +14,18 @@ import org.apache.spark.sql.functions;
 public class Main {
 
 
+
+
+    public static void main(String[] args) {
+
+
+        displayData();
+        orderByReceivingCountry();
+
+    }
+
+
+
     //displays data from the Erasmus.csv file
     public static void displayData(){
         //create spark session
@@ -56,13 +68,4 @@ public class Main {
         spark.stop();
     }
 
-
-
-    public static void main(String[] args) {
-
-
-     displayData();
-     orderByReceivingCountry();
-
-    }
 }
