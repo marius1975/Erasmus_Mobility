@@ -39,7 +39,7 @@ public class Main {
 
         Dataset<Row> df = reader.csv("src/main/resources/Erasmus.csv");
         df.printSchema();
-        df.show(50,false); //Integer.Max to display the entire data in the file
+        df.show(100,false); //Integer.Max to display the entire data in the file
 
         //stop spark session
         spark.stop();
@@ -59,10 +59,14 @@ public class Main {
         reader.option("header", "true");
 
         Dataset<Row> df = reader.csv("src/main/resources/Erasmus.csv");
+
+        //Filters the receiving countries by country code
+        df=df.filter(functions.col("Receiving Country Code").isin("DE","IT","FR"));
+
         Dataset<Row> groupedData = df.groupBy("Receiving Country Code", "Sending Country Code")
                 .agg(functions.count("Participant Age").alias("Number of Participants"))
                 .orderBy("Receiving Country Code", "Sending Country Code");
-        groupedData.show(50,false); //Integer.Max to display the entire data in the file
+        groupedData.show(100,false); //Integer.Max to display the entire data in the file
 
         //stop spark session
         spark.stop();
