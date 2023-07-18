@@ -2,6 +2,9 @@ package org.example;
 
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.SaveMode;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Properties;
 
 
@@ -83,8 +86,10 @@ public class CSV_File_Processing_Methods {
         //creates connection to the database
         String jdbcUrl = "jdbc:mysql://localhost:3306/erasmus_mobility";
         Properties connectionProperties = new Properties();
-        connectionProperties.setProperty("user", "******");
-        connectionProperties.setProperty("password", "********");
+        connectionProperties.setProperty("user", "root");
+        connectionProperties.setProperty("password", loadPasswordFromConfigFile());
+
+
 
         //saves the filtered data to the database
         String[] receivingCountries = {"DE", "FR", "IT"};
@@ -101,4 +106,19 @@ public class CSV_File_Processing_Methods {
 
     }
 
+    //retrieves the password saved in the file on PC
+    private static String loadPasswordFromConfigFile() {
+        Properties config = new Properties();
+        String password = "";
+
+        try {
+            FileInputStream input = new FileInputStream("C:/Users/Marius/Desktop/config.properties");
+            config.load(input);
+            password = config.getProperty("db.password");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return password;
+    }
 }
