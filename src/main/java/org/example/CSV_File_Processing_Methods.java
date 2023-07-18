@@ -2,8 +2,9 @@ package org.example;
 
 import org.apache.spark.sql.*;
 import org.apache.spark.sql.SaveMode;
-//import javax.validation.groups.Default;
 import java.util.Properties;
+
+
 public class CSV_File_Processing_Methods {
 
     //displays data from the Erasmus.csv file
@@ -14,6 +15,7 @@ public class CSV_File_Processing_Methods {
                 .master("local[*]")
                 .getOrCreate();
 
+        //reads the Erasmus.csv file ,prints the schema and displays the data from the file.
         DataFrameReader reader = spark.read();
         reader.option("header", "true");
 
@@ -35,6 +37,7 @@ public class CSV_File_Processing_Methods {
                 .master("local[*]")
                 .getOrCreate();
 
+        //reads the Erasmus.csv file
         DataFrameReader reader = spark.read();
         reader.option("header", "true");
 
@@ -53,18 +56,23 @@ public class CSV_File_Processing_Methods {
         //stop spark session
         spark.stop();
     }
+
+    // Saves data from the filtered countries to the database.
     public  void saveToDatabase() {
 
+        //creates spark session
         SparkSession spark = SparkSession.builder()
                 .appName("Erasmus")
                 .master("local[*]")
                 .getOrCreate();
 
+        //Reads the Erasmus.csv file
         DataFrameReader reader = spark.read();
         reader.option("header", "true");
 
         Dataset<Row> df = reader.csv("src/main/resources/Erasmus.csv");
 
+        // Filters the data by the country code
         df = df.filter(functions.col("Receiving Country Code").isin("DE", "FR", "IT"));
 
         Dataset<Row> groupedDataToBeSaved = df.groupBy("Receiving Country Code", "Sending Country Code")
@@ -72,11 +80,13 @@ public class CSV_File_Processing_Methods {
                 .orderBy("Receiving Country Code", "Sending Country Code");
         //groupedDataToBeSaved.show(100, false);
 
+        //creates connection to the database
         String jdbcUrl = "jdbc:mysql://localhost:3306/erasmus_mobility";
         Properties connectionProperties = new Properties();
         connectionProperties.setProperty("user", "root");
         connectionProperties.setProperty("password", "parolamea1");
 
+        //saves the filtered data to the database
         String[] receivingCountries = {"DE", "FR", "IT"};
         for (String country : receivingCountries) {
             Dataset<Row> filteredData = groupedDataToBeSaved.filter(functions.col("Receiving Country Code").equalTo(country));
