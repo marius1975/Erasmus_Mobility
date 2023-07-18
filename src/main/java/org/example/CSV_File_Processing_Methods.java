@@ -83,8 +83,8 @@ public class CSV_File_Processing_Methods {
         //creates connection to the database
         String jdbcUrl = "jdbc:mysql://localhost:3306/erasmus_mobility";
         Properties connectionProperties = new Properties();
-        connectionProperties.setProperty("user", "root");
-        connectionProperties.setProperty("password", "parolamea1");
+        connectionProperties.setProperty("user", "******");
+        connectionProperties.setProperty("password", "********");
 
         //saves the filtered data to the database
         String[] receivingCountries = {"DE", "FR", "IT"};
