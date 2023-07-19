@@ -12,11 +12,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        DataProcessor dataProcessor = new DataProcessor();
+        DataProcessor dp = new DataProcessor();
 
-        dataProcessor.displayData();
-        dataProcessor.orderByReceivingCountry();
-        dataProcessor.saveToDatabase();
+        dp.displayData();
+        dp.orderByReceivingCountry();
+        dp.saveToDatabase();
 
     }
 
