@@ -12,11 +12,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        CSV_File_Processing_Methods obj = new CSV_File_Processing_Methods();
+        DataProcessor dataProcessor = new DataProcessor();
 
-        obj.displayData();
-        obj.orderByReceivingCountry();
-        obj.saveToDatabase();
+        dataProcessor.displayData();
+        dataProcessor.orderByReceivingCountry();
+        dataProcessor.saveToDatabase();
 
     }
 

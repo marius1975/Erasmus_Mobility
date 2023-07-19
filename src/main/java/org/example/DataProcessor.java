@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 
-public class CSV_File_Processing_Methods {
+public class DataProcessor {
 
     //displays data from the Erasmus.csv file
     public void displayData(){
