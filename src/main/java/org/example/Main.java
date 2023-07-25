@@ -8,19 +8,24 @@ package org.example;
 public class Main {
 
 
-
-
     public static void main(String[] args) {
 
+
         DataProcessor dp = new DataProcessor();
+
 
         dp.displayData();
         dp.orderByReceivingCountry();
         dp.saveToDatabase();
 
+
     }
 
-}
+
+    }
+
+
+
 
 
 
