@@ -1,73 +1,161 @@
+
+
 <!DOCTYPE html>
-<html>
+<html xmlns:border="http://www.w3.org/1999/xhtml">
 <head>
     <title>Erasmus Mobility Data</title>
+
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            margin-left: 525px;
+            color:#008080;
+        }
+        label {
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        input[type="text"] {
+            width: 200px;
+            padding: 5px;
+        }
+        button {
+            font-size: 14px;
+            padding: 5px 10px;
+            margin-top: 5px;
+        }
+        #buttons {
+            margin-top: 10px;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
+
 <body>
-<h1>Erasmus Mobility Data</h1>
-<button onclick="displayData()">Display Data</button>
-<button onclick="orderByReceivingCountry()">Order by Receiving Country</button>
-<button onclick="saveToDatabase()">Save to Database</button>
+<h1 id="h_1">Erasmus Mobility Data Centre</h1>
+
+
+<div id="labels">
+    <div>
+        <label>1. Display all data from the file:</label>
+        <button onclick="displayData()">Display</button>
+    </div>
+    <div>
+        <label for="countryCodes">2. Enter Receiving Country Code(s) (separated by spaces):</label>
+        <input type="text" id="countryCodes">
+        <button onclick="orderByReceivingCountry()">Filter</button>
+    </div>
+    <div>
+        <label>3. Save filtered data to database:</label>
+        <button onclick="saveToDatabase()">Save</button>
+    </div>
+    <div>
+        <label>4. Show aggregated data by sending country:</label>
+        <button onclick="aggregateParticipantsBySendingCountry()">Show data</button>
+    </div>
+</div>
+
 <div id="results"></div>
-<script >
 
-       function displayData() {
-            fetch('/api/displayData')
-                .then(response => response.json())
-                .then(data => displayTable(data, 'results'));
+<script>
+    function displayData() {
+        fetch('/api/displayData')
+            .then(response => response.json())
+            .then(data => displayTable(data, 'results'));
+    }
+
+    function orderByReceivingCountry() {
+        const countryCodesInput = document.getElementById('countryCodes').value;
+        fetch('/api/orderByReceivingCountry?countryCodes=' + countryCodesInput)
+            .then(response => response.json())
+            .then(data => displayTable(data, 'results'));
+    }
+
+    function saveToDatabase() {
+        const countryCodesInput = document.getElementById('countryCodes').value;
+        fetch('/api/saveToDatabase?countryCodes=' + countryCodesInput)
+            .then(response => response.json())
+            .then(data => displayTablesForCountries(data, 'results'));
+    }
+
+
+
+
+function aggregateParticipantsBySendingCountry() {
+    fetch('/api/aggregateParticipantsBySendingCountry')
+        .then(response => response.json())
+        .then(data => displayTable(data,'results'));
+
+
+}
+
+
+
+
+
+
+   function displayTable(data, elementId) {
+    let tableHtml = '<table border="1"><tr>';
+    for (let header in data[0]) {
+        tableHtml += '<th>' + header + '</th>';
+    }
+    tableHtml += '</tr>';
+    for (let item of data) {
+        tableHtml += '<tr>';
+        for (let value of Object.values(item)) {
+            tableHtml += '<td>' + value + '</td>';
         }
+        tableHtml += '</tr>';
+    }
+    tableHtml += '</table>';
+    document.getElementById(elementId).innerHTML = tableHtml;
+}
 
-        function orderByReceivingCountry() {
-            fetch('/api/orderByReceivingCountry')
-                .then(response => response.json())
-                .then(data => displayTable(data, 'results'));
-        }
 
-        function saveToDatabase() {
-            fetch('/api/saveToDatabase')
-                .then(response => response.json())
-                .then(data => displayTablesForCountries(data, 'results'));
-        }
 
-        function displayTable(data, elementId) {
-            let tableHtml = '<table border="1"><tr>';
-            for (let header in data[0]) {
-                tableHtml += '<th>' + header + '</th>';
+    function displayTablesForCountries(data, elementId) {
+        let tablesHtml = '';
+        for (let countryData of data) {
+            tablesHtml += '<h2>Saved results for ' + countryData.country + ':</h2>';
+            tablesHtml += '<div>';
+            tablesHtml += '<table border="1"><tr>';
+            for (let header in countryData.data[0]) {
+                tablesHtml += '<th>' + header + '</th>';
             }
-            tableHtml += '</tr>';
-            for (let item of data) {
-                tableHtml += '<tr>';
+            tablesHtml += '</tr>';
+            for (let item of countryData.data) {
+                tablesHtml += '<tr>';
                 for (let value of Object.values(item)) {
-                    tableHtml += '<td>' + value + '</td>';
-                }
-                tableHtml += '</tr>';
-            }
-            tableHtml += '</table>';
-            document.getElementById(elementId).innerHTML = tableHtml;
-        }
-
-        function displayTablesForCountries(data, elementId) {
-            let tablesHtml = '';
-            for (let countryData of data) {
-                tablesHtml += '<h2>Results for ' + countryData.country + ':</h2>';
-                tablesHtml += '<div>';
-                tablesHtml += '<table border="1"><tr>';
-                for (let header in countryData.data[0]) {
-                    tablesHtml += '<th>' + header + '</th>';
+                    tablesHtml += '<td>' + value + '</td>';
                 }
                 tablesHtml += '</tr>';
-                for (let item of countryData.data) {
-                    tablesHtml += '<tr>';
-                    for (let value of Object.values(item)) {
-                        tablesHtml += '<td>' + value + '</td>';
-                    }
-                    tablesHtml += '</tr>';
-                }
-                tablesHtml += '</table>';
-                tablesHtml += '</div>';
             }
-            document.getElementById(elementId).innerHTML = tablesHtml;
+            tablesHtml += '</table>';
+            tablesHtml += '</div>';
         }
-    </script>
+        document.getElementById(elementId).innerHTML = tablesHtml;
+    }
+
+</script>
 </body>
 </html>
