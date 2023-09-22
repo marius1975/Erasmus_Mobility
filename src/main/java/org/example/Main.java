@@ -20,11 +20,11 @@ public class Main {
         DataProcessor dp = new DataProcessor();
 
 
-        dp.displayData();
+        //dp.displayData();
         //dp.orderByReceivingCountry();
         //dp.saveToDatabase();
-        dp.aggregateParticipantsBySendingCountry();
-
+        //dp.aggregateParticipantsBySendingCountry();
+        //dp.getAllDataFromDatabase();
 
     }
 

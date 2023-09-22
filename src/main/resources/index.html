@@ -1,120 +1,635 @@
 
-
 <!DOCTYPE html>
-<html xmlns:border="http://www.w3.org/1999/xhtml">
+<html xmlns:border="http://www.w3.org/1999/xhtml" xmlns:display="http://www.w3.org/1999/xhtml">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="width=device-width,
+                   initial-scale=1" />
+    <!-- Bootstrap CSS -->
+    <link
+            href=
+                    "https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity=
+                    "sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl"
+            crossorigin="anonymous"
+    />
+
     <title>Erasmus Mobility Data</title>
 
-<style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        window.onload = function() {
+            getTableNames();getModifiedTableNames();
         }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            margin-left: 525px;
-            color:#008080;
-        }
-        label {
-            font-size: 14px;
-            margin-right: 10px;
-        }
-        input[type="text"] {
-            width: 200px;
-            padding: 5px;
-        }
-        button {
-            font-size: 14px;
-            padding: 5px 10px;
-            margin-top: 5px;
-        }
-        #buttons {
-            margin-top: 10px;
-        }
-        #results {
-            margin-top: 20px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-top: 10px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
+    </script>
+
+    <style >
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f8f8f8; /* Add a light background color */
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #008080;
+}
+
+/* Style for form groups */
+.form-group {
+    margin-bottom: 20px; /* Add space between groups */
+}
+
+/* Style for labels */
+label {
+    font-size: 14px;
+    margin-right: 10px;
+    width: 200px;
+    display: block; /* Display labels on a new line */
+    margin-bottom: 5px; /* Add space below labels */
+    color: #333; /* Darken label text color */
+}
+
+/* Style for input fields */
+input[type="text"],
+input[type="number"] {
+    width: 20%; /* Expand the input fields to fill the container */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff; /* Add a white background */
+}
+
+/* Style for buttons */
+button {
+    font-size: 14px;
+    padding: 10px 20px;
+    margin-top: 5px;
+    background-color: #008080;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #005151; /* Darken button on hover */
+}
+
+/* Style for headers */
+#h_1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #008080;
+    text-align: center; /* Center-align the heading */
+}
+
+/* Style for tables */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+/* Style for table links */
+.table-link {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 5px;
+    background-color: #B5D8D9;
+    color: #7482B1;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.table-link:hover {
+    background-color: #11B7BC;
+}
+
+/* Style for close buttons */
+.close-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-right: 10px;
+    border-radius: 4px;
+}
+
+
+</style>
+
 </head>
 
 <body>
 <h1 id="h_1">Erasmus Mobility Data Centre</h1>
 
 
+<form id="fileUploadForm" enctype="multipart/form-data">
+    <label for="fileInput">Upload File:</label>
+    <input type="file" id="fileInput" name="fileInput" accept=".csv, .xlsx, .xls">
+    <label for="tableNameInput">Enter table name(must be equal to the file name):</label>
+    <input type="text" id="tableNameInput" name="tableNameInput">
+    <button type="button" id="uploadButton">Upload</button>
+</form>
+
+
+<div id="message"></div>
+
+
 <div id="labels">
-    <div>
-        <label>1. Display all data from the file:</label>
-        <button onclick="displayData()">Display</button>
+    <div class="form-group">
+        <label>1. Get the list of tables from erasmus_data database:</label>
+        <button onclick="getUserTables()">Get Tables</button>
+
     </div>
-    <div>
-        <label for="countryCodes">2. Enter Receiving Country Code(s) (separated by spaces):</label>
+    <div class="form-group">
+        <label>2. Delete selected file from erasmus_data database</label>
+        <label for="tableNameSelect_5">Select Table:</label>
+        <select id="tableNameSelect_5"></select>
+        <button onclick="deleteTable()">Delete</button>
+        <div id="message_2"></div>
+    </div>
+
+    <div class="form-group">
+        <label>3. Filter By Country Codes</label>
+        <label for="tableNameSelect">Select table from erasmus_data database:</label>
+        <select id="tableNameSelect"></select>
+        <label for="countryCodes">Enter Country Code(s) (separated by spaces):</label>
         <input type="text" id="countryCodes">
-        <button onclick="orderByReceivingCountry()">Filter</button>
+        <button onclick="orderByReceivingCountry()">Filter By Country Code(s)</button>
+        <label>Save filtered data by country codes to erasmus_mobility database:</label>
+        <button onclick="saveToDatabase()">Save tables by country codes</button>
     </div>
-    <div>
-        <label>3. Save filtered data to database:</label>
-        <button onclick="saveToDatabase()">Save</button>
+
+    <div class="form-group">
+        <label>4. Filter by Age</label>
+        <label for="tableNameSelect_2">Select table from erasmus_data database:</label>
+        <select id="tableNameSelect_2"></select>
+        <label for="participantsAge">Enter Age(s) (separated by spaces):</label>
+        <input type="text" id="participantsAge">
+        <button onclick="orderByParticipantAge()">Filter By Age</button>
+        <label>Save filtered data to erasmus_mobility database:</label>
+        <button onclick="saveToDatabaseByAge()">Save tables by age</button>
     </div>
-    <div>
-        <label>4. Show aggregated data by sending country:</label>
-        <button onclick="aggregateParticipantsBySendingCountry()">Show data</button>
+
+    <div class="form-group">
+        <label>5. Delete saved table from erasmus_mobility database</label>
+        <label for="tableNameSelect_6">Select Table:</label>
+        <select id="tableNameSelect_6"></select>
+        <button onclick="deleteModifiedTable()">Delete</button>
+        <div id="message_3"></div>
+    </div>
+    <div class="form-group">
+        <label>6. Graph representing the percentage of students sent by each sending country:</label>
+        <label for="tableNameSelect_3">Select table from erasmus_data database:</label>
+        <select id="tableNameSelect_3"></select>
+        <button onclick="participantsBySendingCountryGraph()">Show graph</button>
     </div>
 </div>
 
+
+<form id="dataForm">
+    <label >7. Add new data to the selected table from erasmus_data database</label><br>
+    <div>
+        <label for="tableNameSelect_4">Select Table:</label>
+        <select id="tableNameSelect_4"></select>
+    </div>
+    <label for="projectRef">Project Reference:</label>
+    <input type="text" id="projectRef" name="projectRef" required><br>
+
+    <label for="mobilityDuration">Mobility Duration:</label>
+    <input type="text" id="mobilityDuration" name="mobilityDuration" required><br>
+
+    <label for="participantAge">Participant Age:</label>
+    <input type="number" id="participantAge" name="participantAge" required><br>
+
+    <label for="sendingCountryCode">Sending Country Code:</label>
+    <input type="text" id="sendingCountryCode" name="sendingCountryCode" required><br>
+
+    <label for="receivingCountryCode">Receiving Country Code:</label>
+    <input type="text" id="receivingCountryCode" name="receivingCountryCode" required><br>
+
+    <button type="button" id="saveButton" onclick="insertData()">Save new data</button>
+
+</form>
+
+
 <div id="results"></div>
+<div id="message_1"></div>
+
+<div id="tableList"><button id="closeButton" class="close-button" style="display: none;">Close</button></div>
+<div id="tableData"></div>
+
+<div id="graphContainer">
+    <button id="closeGraphButton" class="close-button" style="display: none;">Close Graph</button>
+    <canvas id="barGraph" width="400" height="200"></canvas>
+</div>
+
 
 <script>
-    function displayData() {
-        fetch('/api/displayData')
-            .then(response => response.json())
-            .then(data => displayTable(data, 'results'));
-    }
+function getUserTables() {
+    const tableList = document.getElementById('tableList');
 
-    function orderByReceivingCountry() {
-        const countryCodesInput = document.getElementById('countryCodes').value;
-        fetch('/api/orderByReceivingCountry?countryCodes=' + countryCodesInput)
-            .then(response => response.json())
-            .then(data => displayTable(data, 'results'));
-    }
+    fetch(`/api/getUserTables`)
+        .then(response => {
+            if (!response.ok) {
+                return Promise.reject(`Network response was not ok: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received data:', data);
+            const heading = document.createElement('h3');
 
-    function saveToDatabase() {
-        const countryCodesInput = document.getElementById('countryCodes').value;
-        fetch('/api/saveToDatabase?countryCodes=' + countryCodesInput)
-            .then(response => response.json())
-            .then(data => displayTablesForCountries(data, 'results'));
-    }
+            heading.textContent = `List of Tables`;
+
+            tableList.appendChild(heading);
+
+            data.forEach(tableName => {
+                const tableLink = document.createElement('a');
+                tableLink.href = '#';
+                tableLink.textContent = tableName;
+                tableLink.classList.add('table-link');
+                tableLink.addEventListener('click', function () {
+                    getTableData(tableName);
+                });
+                tableList.appendChild(tableLink);
+            });
 
 
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Close List';
+            closeButton.className = 'close-button';
 
+            closeButton.addEventListener('click', closeTableList);
 
-function aggregateParticipantsBySendingCountry() {
-    fetch('/api/aggregateParticipantsBySendingCountry')
-        .then(response => response.json())
-        .then(data => displayTable(data,'results'));
+            tableList.appendChild(closeButton);
+        })
+        .catch(error => {
+            console.error('Error fetching tables:', error);
+        });
+}
 
+function closeTableList() {
+    const tableList = document.getElementById('tableList');
 
+    tableList.innerHTML = '';
 }
 
 
 
+function getTableData(tableName) {
+    const tableDataDiv = document.getElementById('tableData');
+    const closeButton = document.createElement('button');
+
+
+    closeButton.textContent = 'Close';
+    closeButton.className = 'close-button';
+
+
+    closeButton.addEventListener('click', () => {
+        tableDataDiv.innerHTML = '';
+    });
+
+
+    tableDataDiv.appendChild(closeButton);
+
+
+    fetch(`/api/getTableData/:loggedInUserId/${tableName}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const table = createTable(data);
+            tableDataDiv.appendChild(table);
+        })
+        .catch(error => {
+            console.error('Error fetching table data:', error);
+        });
+}
+
+function createTable(data) {
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const tbody = document.createElement('tbody');
+
+    const headerRow = document.createElement('tr');
+    for (const key in data[0]) {
+        const th = document.createElement('th');
+        th.textContent = key;
+        headerRow.appendChild(th);
+    }
+    thead.appendChild(headerRow);
+
+    data.forEach(item => {
+        const row = document.createElement('tr');
+        for (const key in item) {
+            const cell = document.createElement('td');
+            cell.textContent = item[key];
+            row.appendChild(cell);
+        }
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    return table;
+}
+
+
+function deleteTable() {
+    const selectTable = document.getElementById('tableNameSelect_5');
+    const selectedTableName = selectTable.value;
+
+    if (!selectedTableName) {
+        alert('Please select a table to delete.');
+        return;
+    }
+
+    const confirmDelete = confirm(`Are you sure you want to delete the table: ${selectedTableName}?`);
+
+    if (confirmDelete) {
+        fetch(`/api/deleteTable?tableName=${selectedTableName}`, {
+            method: 'DELETE',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                const messageDiv = document.getElementById('message_2');
+                messageDiv.textContent = data.message;
+                messageDiv.style.color = 'green';
+
+
+                selectTable.value = '';
+            })
+            .catch((error) => {
+                console.error('Error deleting table:', error);
+                const messageDiv = document.getElementById('message_2');
+                messageDiv.textContent = 'Table deletion failed.';
+                messageDiv.style.color = 'red';
+            });
+    }
+}
+
+
+function deleteModifiedTable() {
+    const selectTable = document.getElementById('tableNameSelect_6');
+    const selectedTableName = selectTable.value;
+
+    if (!selectedTableName) {
+        alert('Please select a table to delete.');
+        return;
+    }
+
+    const confirmDelete = confirm(`Are you sure you want to delete the table: ${selectedTableName}?`);
+
+    if (confirmDelete) {
+        fetch(`/api/deleteModifiedTable?tableName=${selectedTableName}`, {
+            method: 'DELETE',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                const messageDiv = document.getElementById('message_3');
+                messageDiv.textContent = data.message;
+                messageDiv.style.color = 'green';
+
+
+                selectTable.value = '';
+            })
+            .catch((error) => {
+                console.error('Error deleting table:', error);
+                const messageDiv = document.getElementById('message_3');
+                messageDiv.textContent = 'Table deletion failed.';
+                messageDiv.style.color = 'red';
+            });
+    }
+}
+
+
+function getTableNames() {
+    fetch(`/api/getUserTables`)
+        .then(response => response.json())
+        .then(data => {
+            const tableNameSelect = document.getElementById('tableNameSelect');
+            const tableNameSelect2 = document.getElementById('tableNameSelect_2');
+            const tableNameSelect3 = document.getElementById('tableNameSelect_3');
+            const tableNameSelect4 = document.getElementById('tableNameSelect_4');
+            const tableNameSelect5 = document.getElementById('tableNameSelect_5');
+
+            tableNameSelect.innerHTML = '';
+            tableNameSelect2.innerHTML = '';
+            tableNameSelect3.innerHTML = '';
+            tableNameSelect4.innerHTML = '';
+            tableNameSelect5.innerHTML = '';
+
+            data.forEach(tableName => {
+                const option = document.createElement('option');
+                option.value = tableName;
+                option.textContent = tableName;
+
+
+                tableNameSelect.appendChild(option);
+                tableNameSelect2.appendChild(option.cloneNode(true));
+                tableNameSelect3.appendChild(option.cloneNode(true));
+                tableNameSelect4.appendChild(option.cloneNode(true));
+                tableNameSelect5.appendChild(option.cloneNode(true));
+
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching table names:', error);
+        });
+}
+function getModifiedTableNames() {
+    fetch(`/api/getModifiedUserTables`)
+        .then(response => response.json())
+        .then(data => {
+            const tableNameSelect6 = document.getElementById('tableNameSelect_6');
+
+            tableNameSelect6.innerHTML = '';
+
+            data.forEach(tableName => {
+                const option = document.createElement('option');
+                option.value = tableName;
+                option.textContent = tableName;
+
+
+                tableNameSelect6.appendChild(option);
+
+
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching table names:', error);
+        });
+}
+function orderByReceivingCountry() {
+    const selectedTableName = document.getElementById('tableNameSelect').value;
+    const countryCodesInput = document.getElementById('countryCodes').value;
+
+    fetch(`/api/orderByReceivingCountry?tableName=${selectedTableName}&countryCodes=${countryCodesInput}`)
+        .then(response => response.json())
+        .then(data => {
+
+            displayTable1(data, 'results');
+        });
+}
+
+   function orderByParticipantAge() {
+    const ageInput = document.getElementById('participantsAge').value;
+    const selectedTableName_2 = document.getElementById('tableNameSelect_2').value;
+    fetch(`/api/orderByParticipantAge?tableName=${selectedTableName_2}&participantsAge=${ageInput}`)
+        .then(response => response.json())
+        .then(data => displayTable1(data, 'results'));
+}
+
+   function saveToDatabase() {
+    const selectedTableName = document.getElementById('tableNameSelect').value;
+    const countryCodesInput = document.getElementById('countryCodes').value;
+    fetch(`/api/saveToDatabase?tableName=${selectedTableName}&countryCodes=${countryCodesInput}`)
+        .then(response => response.json())
+        .then(data => displayTablesForCountries(data, 'results'));
+}
+
+  function saveToDatabaseByAge() {
+    const selectedTableName_2 = document.getElementById('tableNameSelect_2').value;
+    const ageInput = document.getElementById('participantsAge').value;
+    fetch(`/api/saveToDatabaseByAge?tableName=${selectedTableName_2}&participantsAge=${ageInput}`)
+        .then(response => response.json())
+        .then(data => displayTablesForAges(data, 'results'));
+}
 
 
 
-   function displayTable(data, elementId) {
+function uploadFile() {
+    const file = document.getElementById('fileInput').files[0];
+    const tableName = document.getElementById('tableNameInput').value;
+
+    if (!tableName) {
+        alert("Table name is required.");
+        return;
+    }
+
+    if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('tableName', tableName);
+
+        fetch('/api/uploadFile', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                const messageElement = document.getElementById('message');
+                messageElement.textContent = "Files successfully saved!";
+                messageElement.style.color = 'green';
+            } else {
+                throw new Error('Failed to upload file.');
+            }
+        })
+        .catch(error => {
+            console.error('Error uploading file:', error);
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = 'Error uploading file.';
+            messageElement.style.color = 'red';
+        });
+    }
+}
+
+document.getElementById('uploadButton').addEventListener('click', uploadFile);
+
+
+
+
+function displayTable1(data, elementId) {
+    const tableDiv = document.getElementById(elementId);
+    tableDiv.innerHTML = '';
+
+    const table = document.createElement('table');
+    const headerRow = table.insertRow(0);
+
+    const tableDataDiv = document.getElementById('tableData');
+    const closeButton = document.createElement('button');
+
+
+    closeButton.textContent = 'Close';
+    closeButton.className = 'close-button';
+
+
+    closeButton.addEventListener('click', () => {
+        tableDiv.innerHTML = '';
+    });
+
+
+    tableDiv.appendChild(closeButton);
+
+    for (const key in data[0]) {
+        if (data[0].hasOwnProperty(key)) {
+            const th = document.createElement('th');
+            th.textContent = key;
+            headerRow.appendChild(th);
+        }
+    }
+
+
+    data.forEach((row, index) => {
+        const tableRow = table.insertRow(index + 1);
+        for (const key in row) {
+            if (row.hasOwnProperty(key)) {
+                const cell = tableRow.insertCell();
+                cell.textContent = row[key];
+            }
+        }
+    });
+
+    tableDiv.appendChild(table);
+}
+
+
+
+   function displayTable2(data, elementId) {
     let tableHtml = '<table border="1"><tr>';
     for (let header in data[0]) {
         tableHtml += '<th>' + header + '</th>';
@@ -134,27 +649,174 @@ function aggregateParticipantsBySendingCountry() {
 
 
     function displayTablesForCountries(data, elementId) {
-        let tablesHtml = '';
-        for (let countryData of data) {
-            tablesHtml += '<h2>Saved results for ' + countryData.country + ':</h2>';
-            tablesHtml += '<div>';
-            tablesHtml += '<table border="1"><tr>';
-            for (let header in countryData.data[0]) {
-                tablesHtml += '<th>' + header + '</th>';
+    let tablesHtml = '';
+    for (let countryData of data) {
+        tablesHtml += '<div class="table-container">';
+        tablesHtml += '<button class="close-button" onclick="closeTable(this)">Close</button>';
+        tablesHtml += '<h2>Saved results for ' + countryData.country + ':</h2>';
+        tablesHtml += '<table border="1"><tr>';
+        for (let header in countryData.data[0]) {
+            tablesHtml += '<th>' + header + '</th>';
+        }
+        tablesHtml += '</tr>';
+        for (let item of countryData.data) {
+            tablesHtml += '<tr>';
+            for (let value of Object.values(item)) {
+                tablesHtml += '<td>' + value + '</td>';
             }
             tablesHtml += '</tr>';
-            for (let item of countryData.data) {
-                tablesHtml += '<tr>';
-                for (let value of Object.values(item)) {
-                    tablesHtml += '<td>' + value + '</td>';
-                }
-                tablesHtml += '</tr>';
-            }
-            tablesHtml += '</table>';
-            tablesHtml += '</div>';
         }
-        document.getElementById(elementId).innerHTML = tablesHtml;
+        tablesHtml += '</table>';
+        tablesHtml += '</div>';
     }
+    document.getElementById(elementId).innerHTML = tablesHtml;
+}
+
+
+function closeTable(button) {
+    const tableContainer = button.parentElement;
+    tableContainer.style.display = 'none';
+}
+
+
+
+function displayTablesForAges(data, elementId) {
+    let tablesHtml = '';
+    for (let ageData of data) {
+        tablesHtml += '<div class="table-container">';
+        tablesHtml += '<button class="close-button" onclick="closeTable(this)">Close</button>';
+        tablesHtml += '<h2>Saved results for Age ' + ageData.age + ':</h2>';
+        tablesHtml += '<div>';
+        tablesHtml += '<table border="1"><tr>';
+        for (let header in ageData.data[0]) {
+            tablesHtml += '<th>' + header + '</th>';
+        }
+        tablesHtml += '</tr>';
+        for (let item of ageData.data) {
+            tablesHtml += '<tr>';
+            for (let value of Object.values(item)) {
+                tablesHtml += '<td>' + value + '</td>';
+            }
+            tablesHtml += '</tr>';
+        }
+        tablesHtml += '</table>';
+        tablesHtml += '</div>';
+    }
+    document.getElementById(elementId).innerHTML = tablesHtml;
+}
+
+function closeTable(button) {
+    const tableContainer = button.parentElement;
+    tableContainer.style.display = 'none';
+}
+
+
+
+
+function insertData() {
+    const selectedTableName = document.getElementById('tableNameSelect_4').value;
+    const projectRef = document.getElementById('projectRef').value;
+    const mobilityDuration = document.getElementById('mobilityDuration').value;
+    const participantAge = parseInt(document.getElementById('participantAge').value);
+    const sendingCountryCode = document.getElementById('sendingCountryCode').value;
+    const receivingCountryCode = document.getElementById('receivingCountryCode').value;
+
+    const formData = new URLSearchParams();
+    formData.append('selectedTableName', selectedTableName);
+    formData.append('projectRef', projectRef);
+    formData.append('mobilityDuration', mobilityDuration);
+    formData.append('participantAge', participantAge);
+    formData.append('sendingCountryCode', sendingCountryCode);
+    formData.append('receivingCountryCode', receivingCountryCode);
+
+    fetch('/api/insertData', {
+        method: 'POST',
+        body: formData
+    })
+    .then(() => {
+        const messageElement = document.getElementById('message_1');
+        messageElement.textContent = 'Data inserted successfully!';
+    });
+}
+
+
+
+
+function participantsBySendingCountryGraph() {
+
+    const selectedTableName = document.getElementById('tableNameSelect_3').value;
+    const apiUrl = `/api/participantsBySendingCountryGraph?tableName=${selectedTableName}`;
+
+    const graphContainer = document.getElementById('graphContainer');
+    const closeGraphButton = document.getElementById('closeGraphButton');
+
+    fetch(apiUrl, {
+        method: 'GET',
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Data received:', data);
+        const formattedData = formatDataForBarGraph(data);
+        console.log('Formatted Data:', formattedData);
+        createBarGraph(formattedData);
+
+         closeGraphButton.style.display = 'block';
+    });
+
+        closeGraphButton.addEventListener('click', () => {
+
+        graphContainer.style.display = 'none';
+        closeGraphButton.style.display = 'none';
+    });
+}
+
+
+
+function formatDataForBarGraph(data) {
+    const formattedData = data.map(item => ({
+        label: item["Sending Country Code"],
+        percentage: parseFloat(item["Percentage"]),
+    }));
+    return formattedData;
+}
+
+
+
+function createBarGraph(data) {
+    const ctx = document.getElementById('barGraph').getContext('2d');
+
+    const labels = data.map(item => item.label);
+    const percentages = data.map(item => item.percentage);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Percentage',
+                data: percentages,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            }],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Percentage',
+                    },
+                },
+            },
+        },
+    });
+}
+
+
+
 
 </script>
 </body>

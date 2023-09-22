@@ -44,12 +44,30 @@
             <artifactId>spark-launcher_2.12</artifactId>
             <version>3.4.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.leopard</groupId>
+            <artifactId>leopard-servlet</artifactId>
+            <version>0.9.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client-runtime</artifactId>
+            <version>3.3.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.crealytics</groupId>
+            <artifactId>spark-excel_2.12</artifactId>
+            <version>3.4.1_0.19.0</version>
+        </dependency>
+
+
 
     </dependencies>
 <build>
 
 
-    <plugin>
+    <plugins>
 
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
